@@ -1,14 +1,16 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { homedir } from "node:os";
 import { randomBytes } from "node:crypto";
+import { fileURLToPath } from "node:url";
 import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 
 const HOST = "127.0.0.1";
 const PORT = 17871;
 const MAX_BODY_BYTES = 1024 * 1024;
 const TOKEN_PATH = join(homedir(), ".pi", "cursor-yeet-token");
+const CURSOR_EXTENSION_TARGET_PATH = join(homedir(), ".cursor", "extensions", "pi-yeet-selection");
 
 type SelectionPayload = {
 	path: string;
@@ -40,16 +42,45 @@ function isSelectionPayload(value: unknown): value is SelectionPayload {
 	return true;
 }
 
-function formatSelectionPrompt(payload: SelectionPayload): string {
-	const lineRef = payload.startLine === payload.endLine ? `${payload.path}:${payload.startLine}` : `${payload.path}:${payload.startLine}-${payload.endLine}`;
-	const language = payload.language ?? "";
+function getLineRef(payload: SelectionPayload): string {
+	return payload.startLine === payload.endLine ? `${payload.path}:${payload.startLine}` : `${payload.path}:${payload.startLine}-${payload.endLine}`;
+}
 
-	return `Look at this selected code:\n\n${lineRef}\n\n\`\`\`${language}\n${payload.text}\n\`\`\`\n\n`;
+function formatSelectionPrompt(payload: SelectionPayload): string {
+	const language = payload.language ?? "";
+	return `Look at this selected code:\n\n${getLineRef(payload)}\n\n\`\`\`${language}\n${payload.text}\n\`\`\`\n\n`;
 }
 
 function sendJson(response: ServerResponse, statusCode: number, body: unknown): void {
 	response.writeHead(statusCode, { "content-type": "application/json" });
 	response.end(JSON.stringify(body));
+}
+
+function isCursorExtensionSourcePath(path: string): boolean {
+	return existsSync(join(path, "package.json")) && existsSync(join(path, "extension.js"));
+}
+
+function getCursorExtensionSourcePath(): string {
+	const extensionDir = dirname(fileURLToPath(import.meta.url));
+	const candidatePaths = [
+		process.env.PI_YEET_CURSOR_EXTENSION_SOURCE,
+		join(extensionDir, "..", "..", "cursor-extension"),
+		join(extensionDir, "..", "packages", "cursor-extension"),
+		join(process.cwd(), "packages", "cursor-extension"),
+		join(homedir(), "Desktop", "pi-yeet-selection", "packages", "cursor-extension"),
+	].filter((path): path is string => typeof path === "string" && path.length > 0);
+
+	const sourcePath = candidatePaths.find(isCursorExtensionSourcePath);
+	if (sourcePath !== undefined) return sourcePath;
+
+	throw new Error(`Cursor extension files were not found. Checked: ${candidatePaths.join(", ")}`);
+}
+
+function installCursorExtension(): void {
+	const sourcePath = getCursorExtensionSourcePath();
+	mkdirSync(dirname(CURSOR_EXTENSION_TARGET_PATH), { recursive: true });
+	rmSync(CURSOR_EXTENSION_TARGET_PATH, { recursive: true, force: true });
+	cpSync(sourcePath, CURSOR_EXTENSION_TARGET_PATH, { recursive: true });
 }
 
 async function readRequestBody(request: IncomingMessage): Promise<string> {
@@ -94,7 +125,7 @@ export default function (pi: ExtensionAPI) {
 
 			const prefix = latestContext.ui.getEditorText().trim().length > 0 ? "\n\n" : "";
 			latestContext.ui.pasteToEditor(`${prefix}${formatSelectionPrompt(parsed)}`);
-			latestContext.ui.notify(`Yeeted ${parsed.path}:${parsed.startLine}-${parsed.endLine} from Cursor.`, "info");
+			latestContext.ui.notify(`Yeeted ${getLineRef(parsed)} from Cursor.`, "info");
 			sendJson(response, 200, { ok: true });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
@@ -139,6 +170,19 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("session_shutdown", async () => {
 		stopServer();
+	});
+
+	pi.registerCommand("cursor-yeet-install-cursor", {
+		description: "Install the Cursor extension for Pi Yeet Selection",
+		handler: async (_args, ctx) => {
+			try {
+				installCursorExtension();
+				ctx.ui.notify("Installed Cursor extension. Restart Cursor or run Developer: Reload Window.", "success");
+			} catch (error) {
+				const message = error instanceof Error ? error.message : String(error);
+				ctx.ui.notify(`Failed to install Cursor extension: ${message}`, "error");
+			}
+		},
 	});
 
 	pi.registerCommand("cursor-yeet-status", {

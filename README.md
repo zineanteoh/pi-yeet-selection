@@ -1,58 +1,79 @@
 # Pi Yeet Selection
 
-Send selected code from Cursor / VS Code to the active Pi editor with one shortcut.
+Yeet highlighted code from your IDE (Cursor) to Pi with one shortcut (CMD+SHIFT+Y)
 
-## What it does
+## Install
 
-- Cursor / VS Code command: `Pi: Yeet Selection to Pi`
-- Default shortcut: `Cmd+Shift+Y`
-- Sends the active selection as:
+Run this once:
 
-```text
+```
+pi install git:github.com/zineanteoh/pi-yeet-selection
+```
+
+Restart Pi, or run this inside Pi:
+
+```
+/reload
+```
+
+Then ask Pi to install the pi-yeet-selection Cursor extension for you:
+
+```
+/cursor-yeet-install-cursor
+```
+
+Restart Cursor.
+
+If Cursor is already open, run this from the command palette:
+
+```
+Developer: Reload Window
+```
+
+Start yeeting code from IDE to [pi.dev](http://pi.dev) terminal
+
+## Use it
+
+1. Start Pi.
+2. Open Cursor.
+3. Highlight code.
+4. Press Cmd+Shift+Y.
+
+If you do not select anything, it sends the current line.
+
+## Commands
+
+Cursor command palette:
+
+- Pi: Yeet Selection to Pi
+- Pi: Copy Selection Prompt
+
+Pi commands:
+
+- /cursor-yeet-install-cursor
+- /cursor-yeet-status
+
+Default shortcut:
+
+- Cmd+Shift+Y
+
+## What gets sent
+
+Pi receives the file path, line numbers, and selected code.
+
+Example:
+
+```
 Look at this selected code:
 
-src/file.ts:12-20
+src/example.ts:12-20
 
-```ts
-...
-```
+selected code here
 ```
 
-If no text is selected, it sends the current line.
+## Notes
 
-## How it works
+- Everything runs locally on your machine.
+- The Pi side listens on 127.0.0.1 only.
+- A local token at ~/.pi/cursor-yeet-token protects the endpoint.
 
-This repo has two parts:
-
-- `packages/pi-extension`: Pi package. Starts a local-only HTTP endpoint on `127.0.0.1:17871`.
-- `packages/cursor-extension`: Cursor / VS Code extension. Reads the editor selection and POSTs it to Pi.
-
-A shared token in `~/.pi/cursor-yeet-token` protects the local endpoint.
-
-## Local install
-
-### Pi side
-
-```bash
-pi install /Users/zi.teoh/Desktop/pi-yeet-selection/packages/pi-extension
-```
-
-Or during development, copy/symlink `packages/pi-extension/extensions/cursor-yeet.ts` into `~/.pi/agent/extensions/` and run `/reload` in Pi.
-
-### Cursor side
-
-For local development, this folder is currently copied into:
-
-```text
-~/.cursor/extensions/pi-yeet-selection
-```
-
-Restart Cursor or run `Developer: Reload Window`.
-
-## Usage
-
-1. Start Pi and run `/reload` if needed.
-2. Select code in Cursor.
-3. Press `Cmd+Shift+Y`.
-
-If Pi is not reachable, the Cursor extension copies the formatted prompt to your clipboard as a fallback.
