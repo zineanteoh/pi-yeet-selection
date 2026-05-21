@@ -1,5 +1,5 @@
 {
-  "name": "pi-yeet-selection",
+  "name": "pi-yeet-selection-pi",
   "version": "0.0.1",
   "description": "Pi extension that receives selected code from Cursor/VS Code and pastes it into Pi.",
   "license": "MIT",
@@ -17,5 +17,10 @@
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "*"
+  },
+  "peerDependenciesMeta": {
+    "@mariozechner/pi-coding-agent": {
+      "optional": true
+    }
   }
 }

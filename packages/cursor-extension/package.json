@@ -1,5 +1,5 @@
 {
-  "name": "pi-yeet-selection",
+  "name": "pi-yeet-selection-cursor",
   "displayName": "Pi Yeet Selection",
   "description": "Send the current Cursor selection to the active pi session.",
   "version": "0.0.1",

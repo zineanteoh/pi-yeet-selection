@@ -24,9 +24,7 @@ Then ask Pi to install the pi-yeet-selection Cursor extension for you:
 /cursor-yeet-install-cursor
 ```
 
-Restart Cursor.
-
-If Cursor is already open, run this from the command palette:
+Go to Cursor, run CMD+SHIFT+P to open the command palette, then run:
 
 ```
 Developer: Reload Window
@@ -78,4 +76,3 @@ selected code here
 - Everything runs locally on your machine.
 - The Pi side listens on 127.0.0.1 only.
 - A local token at ~/.pi/cursor-yeet-token protects the endpoint.
-

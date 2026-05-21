@@ -1,13 +1,33 @@
 {
-  "name": "pi-yeet-selection-monorepo",
+  "name": "pi-yeet-selection",
   "private": true,
   "version": "0.0.1",
   "description": "Send selected code from Cursor/VS Code to Pi.",
   "license": "MIT",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "cursor",
+    "vscode",
+    "selection"
+  ],
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "package:cursor": "cd packages/cursor-extension && npx vsce package --no-dependencies"
+  },
+  "pi": {
+    "extensions": [
+      "packages/pi-extension/extensions"
+    ]
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*"
+  },
+  "peerDependenciesMeta": {
+    "@mariozechner/pi-coding-agent": {
+      "optional": true
+    }
   }
 }
