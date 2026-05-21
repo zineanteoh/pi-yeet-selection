@@ -1,0 +1,51 @@
+{
+  "name": "pi-yeet-selection",
+  "displayName": "Pi Yeet Selection",
+  "description": "Send the current Cursor selection to the active pi session.",
+  "version": "0.0.1",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onCommand:piYeet.sendSelectionToPi",
+    "onCommand:piYeet.copySelectionPrompt"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "piYeet.sendSelectionToPi",
+        "title": "Pi: Yeet Selection to Pi"
+      },
+      {
+        "command": "piYeet.copySelectionPrompt",
+        "title": "Pi: Copy Selection Prompt"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "piYeet.sendSelectionToPi",
+        "key": "cmd+shift+y",
+        "mac": "cmd+shift+y",
+        "when": "editorTextFocus"
+      }
+    ],
+    "configuration": {
+      "title": "Pi Yeet Selection",
+      "properties": {
+        "piYeet.endpoint": {
+          "type": "string",
+          "default": "http://127.0.0.1:17871/selection",
+          "description": "Local pi cursor-yeet endpoint."
+        },
+        "piYeet.tokenPath": {
+          "type": "string",
+          "default": "~/.pi/cursor-yeet-token",
+          "description": "Path to the shared local token file."
+        }
+      }
+    }
+  }
+}

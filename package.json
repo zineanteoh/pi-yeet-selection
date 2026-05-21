@@ -1,0 +1,13 @@
+{
+  "name": "pi-yeet-selection-monorepo",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Send selected code from Cursor/VS Code to Pi.",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "package:cursor": "cd packages/cursor-extension && npx vsce package --no-dependencies"
+  }
+}
