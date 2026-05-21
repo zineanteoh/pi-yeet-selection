@@ -2,6 +2,8 @@
 
 Yeet highlighted code from your IDE (Cursor) to Pi with one shortcut (CMD+SHIFT+Y)
 
+https://github.com/user-attachments/assets/79bf9e46-fa5a-4cc5-aae7-dbb07051a6da
+
 ## Install
 
 Run this once:
